@@ -11,7 +11,7 @@ from server import run_exp
 if __name__ == '__main__':
     START_EXP_IDX = 3000
     NUM_EXP = 1
-    NUM_POISONED_WORKERS = 25
+    NUM_POISONED_WORKERS = 5
     REPLACEMENT_METHOD = replace_1_with_9
     KWARGS = {
         "BeforeBreakPoint_EPOCH" : 75,
