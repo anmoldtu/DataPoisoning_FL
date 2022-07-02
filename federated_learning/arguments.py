@@ -42,11 +42,11 @@ class Arguments:
         self.num_workers = 50
         self.num_poisoned_workers = 0
 
-        #self.net = Cifar10CNN
-        self.net = FashionMNISTCNN
+        self.net = Cifar10CNN
+#         self.net = FashionMNISTCNN
 
-        self.train_data_loader_pickle_path = "data_loaders/fashion-mnist/train_data_loader.pickle"
-        self.test_data_loader_pickle_path = "data_loaders/fashion-mnist/test_data_loader.pickle"
+        self.train_data_loader_pickle_path = "data_loaders/cifar10/train_data_loader.pickle"
+        self.test_data_loader_pickle_path = "data_loaders/cifar10/test_data_loader.pickle"
 
         self.loss_function = torch.nn.CrossEntropyLoss
 
@@ -56,6 +56,17 @@ class Arguments:
 
     def get_round_worker_selection_strategy(self):
         return self.round_worker_selection_strategy
+    
+    def set_default_args(self, net):
+        if(net == 'fashion-mnist') :
+            self.net = FashionMNISTCNN
+            self.batch_size = 4
+            self.lr = 0.001
+            self.momentum = 0.9
+            self.scheduler_step_size = 10
+            self.scheduler_gamma = 0.1
+            self.train_data_loader_pickle_path = "data_loaders/fashion-mnist/train_data_loader.pickle"
+            self.test_data_loader_pickle_path = "data_loaders/fashion-mnist/test_data_loader.pickle"
 
     def get_round_worker_selection_strategy_kwargs(self):
         return self.round_worker_selection_strategy_kwargs
