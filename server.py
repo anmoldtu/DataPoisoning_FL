@@ -11,6 +11,7 @@ from federated_learning.utils import load_train_data_loader
 from federated_learning.utils import load_test_data_loader
 from federated_learning.utils import generate_experiment_ids
 from federated_learning.utils import convert_results_to_csv
+from federated_learning.utils.client_utils import log_client_data_statistics
 from client import Client
 
 def train_subset_of_clients(epoch, args, clients, poisoned_workers):
@@ -92,7 +93,11 @@ def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_s
     # Distribute batches equal volume IID
     distributed_train_dataset = distribute_batches_equally(train_data_loader, args.get_num_workers())
     distributed_train_dataset = convert_distributed_data_into_numpy(distributed_train_dataset)
-
+    
+    logger.info("Data Distribution before Poisoning:")
+    class_labels = list(set(distributed_train_dataset[0][1]))
+    log_client_data_statistics(logger, class_labels, distributed_train_dataset)
+    
     poisoned_workers = identify_random_elements(args.get_num_workers(), args.get_num_poisoned_workers())
     distributed_train_dataset = poison_data(logger, distributed_train_dataset, args.get_num_workers(), poisoned_workers, replacement_method)
 
