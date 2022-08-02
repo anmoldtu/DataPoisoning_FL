@@ -45,8 +45,10 @@ class Arguments:
         self.net = Cifar10CNN
 #         self.net = FashionMNISTCNN
 
+        self.distributed_train_data_exist = True
         self.train_data_loader_pickle_path = "data_loaders/cifar10/train_data_loader.pickle"
         self.test_data_loader_pickle_path = "data_loaders/cifar10/test_data_loader.pickle"
+        self.distributed_train_dataset_path = "data_loaders/cifar10/distributed_train_dataset.pickle"
 
         self.loss_function = torch.nn.CrossEntropyLoss
 
@@ -67,6 +69,7 @@ class Arguments:
             self.scheduler_gamma = 0.1
             self.train_data_loader_pickle_path = "data_loaders/fashion-mnist/train_data_loader.pickle"
             self.test_data_loader_pickle_path = "data_loaders/fashion-mnist/test_data_loader.pickle"
+            self.distributed_train_dataset_path = "data_loaders/fashion-mnist/distributed_train_dataset.pickle"
 
     def get_round_worker_selection_strategy_kwargs(self):
         return self.round_worker_selection_strategy_kwargs
