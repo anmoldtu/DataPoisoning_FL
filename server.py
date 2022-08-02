@@ -92,8 +92,18 @@ def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_s
 
     # Distribute batches equal volume IID
     distributed_train_dataset = distribute_batches_equally(train_data_loader, args.get_num_workers())
+
+    #Uncomment when you need to save distributed dataset
+    # with open(args.distributed_train_dataset_path, "wb") as f:
+    #     pickle.dump(distributed_train_dataset, f)
+
+    if(args.distributed_train_data_exist == True):
+        with open(args.distributed_train_dataset_path, 'rb') as pickle_file:
+            distributed_train_dataset = pickle.load(pickle_file)
+  
     distributed_train_dataset = convert_distributed_data_into_numpy(distributed_train_dataset)
-    
+
+
     logger.info("Data Distribution before Poisoning:")
     class_labels = list(set(distributed_train_dataset[0][1]))
     log_client_data_statistics(logger, class_labels, distributed_train_dataset)
