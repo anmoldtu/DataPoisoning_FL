@@ -13,6 +13,7 @@ from federated_learning.utils import generate_experiment_ids
 from federated_learning.utils import convert_results_to_csv
 from federated_learning.utils.client_utils import log_client_data_statistics
 from client import Client
+import pickle
 
 def train_subset_of_clients(epoch, args, clients, poisoned_workers):
     """
