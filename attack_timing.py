@@ -18,12 +18,14 @@ if __name__ == '__main__':
     parser.add_argument('--NET')
     parser.add_argument('--REPLACEMENT_METHOD')
     parser.add_argument('--BREAKPOINT')
+    parser.add_argument('--LR')
     args = parser.parse_args()
     
     
     START_EXP_IDX = int(args.START_EXP_IDX)
     NUM_EXP = int(args.NUM_EXP)
     NET = args.NET
+    LR = args.LR
     NUM_POISONED_WORKERS = int(args.NUM_POISONED_WORKERS)
     
     REPLACEMENT_METHOD = args.REPLACEMENT_METHOD
@@ -41,9 +43,9 @@ if __name__ == '__main__':
         REPLACEMENT_METHOD = replace_6_with_0
     KWARGS = {
         "BeforeBreakPoint_EPOCH" : 75,
-        "BeforeBreakpoint_NUM_WORKERS_PER_ROUND" : 10,
+        "BeforeBreakpoint_NUM_WORKERS_PER_ROUND" : 5,
         "AfterBreakPoint_EPOCH" : 75,
-        "AfterBreakpoint_NUM_WORKERS_PER_ROUND" : 10,
+        "AfterBreakpoint_NUM_WORKERS_PER_ROUND" : 5,
     }
     
     BreakPoint = AfterBreakpoint()
@@ -52,4 +54,4 @@ if __name__ == '__main__':
         BreakPoint = BeforeBreakpoint()
         
     for experiment_id in range(START_EXP_IDX, START_EXP_IDX + NUM_EXP):
-        run_exp(REPLACEMENT_METHOD, NUM_POISONED_WORKERS, KWARGS, BreakPoint, experiment_id, NET)
+        run_exp(REPLACEMENT_METHOD, NUM_POISONED_WORKERS, KWARGS, BreakPoint, experiment_id, NET, LR)

@@ -13,6 +13,8 @@ from federated_learning.utils import generate_experiment_ids
 from federated_learning.utils import convert_results_to_csv
 from federated_learning.utils.client_utils import log_client_data_statistics
 from client import Client
+import time
+import datetime
 import pickle
 
 def train_subset_of_clients(epoch, args, clients, poisoned_workers):
@@ -74,7 +76,7 @@ def run_machine_learning(clients, args, poisoned_workers):
 
     return convert_results_to_csv(epoch_test_set_results), worker_selection
 
-def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_strategy, idx, net):
+def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_strategy, idx, net, LR):
     log_files, results_files, models_folders, worker_selections_files = generate_experiment_ids(idx, 1)
 
     # Initialize logger
@@ -83,7 +85,7 @@ def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_s
     args = Arguments(logger)
     args.set_model_save_path(models_folders[0])
     args.set_num_poisoned_workers(num_poisoned_workers)
-    args.set_default_args(net)
+    args.set_default_args(net, LR)
     args.set_round_worker_selection_strategy_kwargs(KWARGS)
     args.set_client_selection_strategy(client_selection_strategy)
     args.log()
@@ -95,10 +97,12 @@ def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_s
     distributed_train_dataset = distribute_batches_equally(train_data_loader, args.get_num_workers())
 
     #Uncomment when you need to save distributed dataset
-    # with open(args.distributed_train_dataset_path, "wb") as f:
-    #     pickle.dump(distributed_train_dataset, f)
+#     logger.info("Creating New Distribution!")
+#     with open(args.distributed_train_dataset_path, "wb") as f:
+#         pickle.dump(distributed_train_dataset, f)
 
     if(args.distributed_train_data_exist == True):
+        logger.info("Distribution Exists! Loading ...")
         with open(args.distributed_train_dataset_path, 'rb') as pickle_file:
             distributed_train_dataset = pickle.load(pickle_file)
   
@@ -107,16 +111,48 @@ def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_s
 
     logger.info("Data Distribution before Poisoning:")
     class_labels = list(set(distributed_train_dataset[0][1]))
-    log_client_data_statistics(logger, class_labels, distributed_train_dataset)
+#     print(class_labels)
+    all_client_classes_dist = log_client_data_statistics(logger, class_labels, distributed_train_dataset)
+    
+    print(all_client_classes_dist)
     
     poisoned_workers = identify_random_elements(args.get_num_workers(), args.get_num_poisoned_workers())
+    
+#     poisoned_workers = [24, 44, 23, 30, 27]
+    
+    if(args.get_num_poisoned_workers() > 0):
+        if(net != 'fashion-mnist'):
+            poisoned_workers = [1, 21, 47, 29, 11]
+        else:
+            poisoned_workers = [24, 44, 23, 30, 27]
+    
+#     if(net != 'fashion-mnist'):
+#         if(idx < 13):
+#             # Less Instances
+#             poisoned_workers = [12, 14,  5, 37, 10] 
+#         else:
+#             # More Instances
+#             poisoned_workers =[ 2, 18, 31, 38, 40]
+#     else:
+#         if(idx < 17):
+#             # Less Instances
+#             poisoned_workers = [17, 48, 19, 36, 16]
+#         else:
+#             # More Instances
+#             poisoned_workers =[26,  7, 21, 18, 22]
+    
     distributed_train_dataset = poison_data(logger, distributed_train_dataset, args.get_num_workers(), poisoned_workers, replacement_method)
 
     train_data_loaders = generate_data_loaders_from_distributed_dataset(distributed_train_dataset, args.get_batch_size())
 
     clients = create_clients(args, train_data_loaders, test_data_loader)
-
+    
+    start_time = time.time()
     results, worker_selection = run_machine_learning(clients, args, poisoned_workers)
+    end_time = time.time()
+    
+    train_time = end_time - start_time
+    logger.info("Training Time is {}".format(str(datetime.timedelta(seconds = train_time))))
     save_results(results, results_files[0])
     save_results(worker_selection, worker_selections_files[0])
 

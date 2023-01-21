@@ -140,7 +140,7 @@ class Client:
 
                 running_loss = 0.0
 
-        self.scheduler.step()
+#         self.scheduler.step()
 
         # save model
         if self.args.should_save_model(epoch):
@@ -183,9 +183,13 @@ class Client:
         with torch.no_grad():
             for (images, labels) in self.test_data_loader:
                 images, labels = images.to(self.device), labels.to(self.device)
-
+                
                 outputs = self.net(images)
+                
+#                 print(labels)
+#                 print(outputs)
                 _, predicted = torch.max(outputs.data, 1)
+#                 print(predicted)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 

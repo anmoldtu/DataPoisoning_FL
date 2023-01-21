@@ -9,9 +9,13 @@ def log_client_data_statistics(logger, label_class_set, distributed_dataset):
     :param distributed_dataset: distributed dataset
     :type distributed_dataset: list(tuple)
     """
+    all_clients_classes = []
     for client_idx in range(len(distributed_dataset)):
         client_class_nums = {class_val : 0 for class_val in label_class_set}
         for target in distributed_dataset[client_idx][1]:
             client_class_nums[target] += 1
 
         logger.info("Client #{} has data distribution: {}".format(client_idx, str(list(client_class_nums.values()))))
+        all_clients_classes.append(list(client_class_nums.values()))
+        
+    return all_clients_classes

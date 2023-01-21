@@ -1,6 +1,8 @@
 from federated_learning.arguments import Arguments
 from federated_learning.nets import Cifar10CNN
 from federated_learning.nets import FashionMNISTCNN
+from federated_learning.nets import FashionMNISTResNet
+
 import os
 import torch
 from loguru import logger
@@ -21,3 +23,10 @@ if __name__ == '__main__':
     # ---------------------------------
     full_save_path = os.path.join(args.get_default_model_folder_path(), "FashionMNISTCNN.model")
     torch.save(FashionMNISTCNN().state_dict(), full_save_path)
+    
+    
+        # ---------------------------------
+    # -------- FashionMNISTResNet --------
+    # ---------------------------------
+    full_save_path = os.path.join(args.get_default_model_folder_path(), "FashionMNISTResNet.model")
+    torch.save(FashionMNISTResNet().state_dict(), full_save_path)

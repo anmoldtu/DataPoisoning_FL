@@ -14,11 +14,13 @@ if __name__ == '__main__':
     parser.add_argument('--NUM_EXP')
     parser.add_argument('--START_EXP_IDX')
     parser.add_argument('--NET')
+    parser.add_argument('--LR')
     args = parser.parse_args()
     
     START_EXP_IDX = int(args.START_EXP_IDX)
     NUM_EXP = int(args.NUM_EXP)
     NET = args.NET
+    LR = args.LR
     NUM_POISONED_WORKERS = 0
     REPLACEMENT_METHOD = replace_1_with_9
     KWARGS = {
@@ -26,4 +28,4 @@ if __name__ == '__main__':
     }
 
     for experiment_id in range(START_EXP_IDX, START_EXP_IDX + NUM_EXP):
-        run_exp(REPLACEMENT_METHOD, NUM_POISONED_WORKERS, KWARGS, RandomSelectionStrategy(), experiment_id, NET)
+        run_exp(REPLACEMENT_METHOD, NUM_POISONED_WORKERS, KWARGS, RandomSelectionStrategy(), experiment_id, NET, LR)

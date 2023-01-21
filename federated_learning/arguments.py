@@ -1,5 +1,6 @@
 from .nets import Cifar10CNN
 from .nets import FashionMNISTCNN
+from .nets import FashionMNISTResNet
 from .worker_selection import BeforeBreakpoint
 from .worker_selection import AfterBreakpoint
 from .worker_selection import PoisonerProbability
@@ -59,17 +60,22 @@ class Arguments:
     def get_round_worker_selection_strategy(self):
         return self.round_worker_selection_strategy
     
-    def set_default_args(self, net):
+    def set_default_args(self, net, LR):
         if(net == 'fashion-mnist') :
             self.net = FashionMNISTCNN
+#             self.net = FashionMNISTResNet
             self.batch_size = 4
             self.lr = 0.001
             self.momentum = 0.9
-            self.scheduler_step_size = 10
-            self.scheduler_gamma = 0.1
+#             self.scheduler_step_size = 10
+#             self.scheduler_gamma = 0.1
             self.train_data_loader_pickle_path = "data_loaders/fashion-mnist/train_data_loader.pickle"
             self.test_data_loader_pickle_path = "data_loaders/fashion-mnist/test_data_loader.pickle"
             self.distributed_train_dataset_path = "data_loaders/fashion-mnist/distributed_train_dataset.pickle"
+        
+        if(LR == 'fast'):
+            self.scheduler_step_size = 10
+            self.scheduler_gamma = 0.1
 
     def get_round_worker_selection_strategy_kwargs(self):
         return self.round_worker_selection_strategy_kwargs

@@ -16,11 +16,15 @@ if __name__ == '__main__':
     parser.add_argument('--NET')
     parser.add_argument('--REPLACEMENT_METHOD')
     parser.add_argument('--POST_BREAK_EPOCH_PROBABILITY')
+    parser.add_argument('--LR')
+    parser.add_argument('--NOISE')
+    parser.add_argument('--CLIP')
     args = parser.parse_args()
     
     START_EXP_IDX = int(args.START_EXP_IDX)
     NUM_EXP = int(args.NUM_EXP)
     NET = args.NET
+    LR = args.LR
     NUM_POISONED_WORKERS = int(args.NUM_POISONED_WORKERS)
     
     REPLACEMENT_METHOD = args.REPLACEMENT_METHOD
@@ -42,7 +46,9 @@ if __name__ == '__main__':
         "PoisonerProbability_POST_BREAK_EPOCH_PROBABILITY" : float(args.POST_BREAK_EPOCH_PROBABILITY),
         "PoisonerProbability_PRE_BREAK_EPOCH_PROBABILITY" : 0.0,
         "PoisonerProbability_NUM_WORKERS_PER_ROUND" : 5
+        "NOISE" : float(args.NOISE)
+        "CLIP" : float(args.CLIP)
     }
 
     for experiment_id in range(START_EXP_IDX, START_EXP_IDX + NUM_EXP):
-        run_exp(REPLACEMENT_METHOD, NUM_POISONED_WORKERS, KWARGS, PoisonerProbability(), experiment_id, NET)
+        run_exp(REPLACEMENT_METHOD, NUM_POISONED_WORKERS, KWARGS, PoisonerProbability(), experiment_id, NET, LR)
