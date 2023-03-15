@@ -13,7 +13,10 @@ from federated_learning.utils import generate_experiment_ids
 from federated_learning.utils import convert_results_to_csv
 from federated_learning.utils.client_utils import log_client_data_statistics
 from client import Client
+import torch
 import time
+import copy
+from torch.nn.utils import parameters_to_vector, vector_to_parameters
 import datetime
 import pickle
 
@@ -38,17 +41,38 @@ def train_subset_of_clients(epoch, args, clients, poisoned_workers):
         poisoned_workers,
         kwargs)
 
+    with torch.no_grad():
+        initial_global_parameters = parameters_to_vector(clients[0].get_net_parameters()).detach()
+    
     for client_idx in random_workers:
         args.get_logger().info("Training epoch #{} on client #{}", str(epoch), str(clients[client_idx].get_client_index()))
         clients[client_idx].train(epoch)
 
     args.get_logger().info("Averaging client parameters")
     parameters = [clients[client_idx].get_nn_parameters() for client_idx in random_workers]
-    new_nn_params = average_nn_parameters(parameters)
+    
+    with torch.no_grad():
+        parameter_updates = [(parameters_to_vector(clients[client_idx].get_net_parameters()) - initial_global_parameters) for client_idx in random_workers]
+    
+    param_size = len(parameters_to_vector(clients[0].get_net_parameters()))
+    print(param_size)
+
+    new_nn_param_updates = average_nn_parameters(parameter_updates)
+
+    
+    print(new_nn_param_updates)
+    if args.noise > 0:
+            print("Noise!!")
+            new_nn_param_updates.add_(torch.normal(mean=0, std=args.noise*args.clip, size=(param_size,)))
+    print(new_nn_param_updates)
+    new_nn_params = initial_global_parameters + new_nn_param_updates
 
     for client in clients:
         args.get_logger().info("Updating parameters on client #{}", str(client.get_client_index()))
-        client.update_nn_parameters(new_nn_params)
+        with torch.no_grad():
+            vector_to_parameters(new_nn_params, client.get_net_parameters())
+        dictpy = client.get_nn_parameters()
+        client.update_nn_parameters(dictpy)
 
     return clients[0].test(), random_workers
 
@@ -88,6 +112,7 @@ def run_exp(replacement_method, num_poisoned_workers, KWARGS, client_selection_s
     args.set_default_args(net, LR)
     args.set_round_worker_selection_strategy_kwargs(KWARGS)
     args.set_client_selection_strategy(client_selection_strategy)
+    args.set_noise_and_clip(KWARGS["NOISE"], KWARGS["CLIP"],)
     args.log()
 
     train_data_loader = load_train_data_loader(logger, args)

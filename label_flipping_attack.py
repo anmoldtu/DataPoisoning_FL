@@ -15,6 +15,8 @@ if __name__ == '__main__':
     parser.add_argument('--START_EXP_IDX')
     parser.add_argument('--NET')
     parser.add_argument('--LR')
+    parser.add_argument('--NOISE')
+    parser.add_argument('--CLIP')
     args = parser.parse_args()
     
     START_EXP_IDX = int(args.START_EXP_IDX)
@@ -24,7 +26,9 @@ if __name__ == '__main__':
     NUM_POISONED_WORKERS = 0
     REPLACEMENT_METHOD = replace_1_with_9
     KWARGS = {
-        "NUM_WORKERS_PER_ROUND" : 5
+        "NUM_WORKERS_PER_ROUND" : 5,
+        "NOISE" : float(args.NOISE),
+        "CLIP" : float(args.CLIP)
     }
 
     for experiment_id in range(START_EXP_IDX, START_EXP_IDX + NUM_EXP):

@@ -45,8 +45,8 @@ if __name__ == '__main__':
         "PoisonerProbability_BREAK_EPOCH" : 75,
         "PoisonerProbability_POST_BREAK_EPOCH_PROBABILITY" : float(args.POST_BREAK_EPOCH_PROBABILITY),
         "PoisonerProbability_PRE_BREAK_EPOCH_PROBABILITY" : 0.0,
-        "PoisonerProbability_NUM_WORKERS_PER_ROUND" : 5
-        "NOISE" : float(args.NOISE)
+        "PoisonerProbability_NUM_WORKERS_PER_ROUND" : 5,
+        "NOISE" : float(args.NOISE),
         "CLIP" : float(args.CLIP)
     }
 

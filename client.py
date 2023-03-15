@@ -4,6 +4,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from federated_learning.schedulers import MinCapableStepLR
 import os
+from torch.nn.utils import parameters_to_vector, vector_to_parameters
 import numpy
 import copy
 
@@ -88,6 +89,9 @@ class Client:
 
         return model
 
+    def get_net_parameters(self):
+        return self.net.parameters()
+    
     def get_client_index(self):
         """
         Returns the client index.
@@ -114,6 +118,8 @@ class Client:
         :param epoch: Current epoch #
         :type epoch: int
         """
+        initial_global_model_params = parameters_to_vector(self.net.parameters()).detach()
+#         print("Parameters:", initial_global_model_params)
         self.net.train()
 
         # save model
@@ -131,7 +137,16 @@ class Client:
             outputs = self.net(inputs)
             loss = self.loss_function(outputs, labels)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.net.parameters(), 10) 
             self.optimizer.step()
+            
+            # Weight Clip
+            if self.args.clip > 0:
+                with torch.no_grad():
+                    update = parameters_to_vector(self.net.parameters()) - initial_global_model_params
+                    clip_denom = max(1, torch.norm(update, p=2)/self.args.clip)
+                    update.div_(clip_denom)
+                    vector_to_parameters(initial_global_model_params + update, self.net.parameters())
 
             # print statistics
             running_loss += loss.item()
@@ -140,7 +155,7 @@ class Client:
 
                 running_loss = 0.0
 
-#         self.scheduler.step()
+        self.scheduler.step()
 
         # save model
         if self.args.should_save_model(epoch):

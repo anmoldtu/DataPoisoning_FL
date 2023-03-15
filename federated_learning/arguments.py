@@ -43,6 +43,8 @@ class Arguments:
         self.num_workers = 50
         self.num_poisoned_workers = 0
 
+        self.noise = 0
+        self.clip = 0
         self.net = Cifar10CNN
 #         self.net = FashionMNISTCNN
 
@@ -76,6 +78,10 @@ class Arguments:
         if(LR == 'fast'):
             self.scheduler_step_size = 10
             self.scheduler_gamma = 0.1
+            
+    def set_noise_and_clip(self, noise, clip):
+        self.noise = noise
+        self.clip = clip
 
     def get_round_worker_selection_strategy_kwargs(self):
         return self.round_worker_selection_strategy_kwargs
